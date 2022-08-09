@@ -19,35 +19,19 @@ from monai.transforms import(
 from monai.data import DataLoader, Dataset, CacheDataset
 from monai.utils import set_determinism
 
-"""
-This file is for preporcessing only, it contains all the functions that you need
-to make your data ready for training.
-
-You need to install the required libraries if you do not already have them.
-
-pip install os, ...
-"""
-
 def create_groups(in_dir, out_dir, Number_slices):
-    '''
-    This function is to get the last part of the path so that we can use it to name the folder.
-    `in_dir`: the path to your folders that contain dicom files
-    `out_dir`: the path where you want to put the converted nifti files
-    `Number_slices`: here you put the number of slices that you need for your project and it will 
-    create groups with this number.
-    '''
 
     for patient in glob(in_dir + '/*'):
         patient_name = os.path.basename(os.path.normpath(patient))
 
-        # Here we need to calculate the number of folders which mean into how many groups we will divide the number of slices
+        
         number_folders = int(len(glob(patient + '/*')) / Number_slices)
 
         for i in range(number_folders):
             output_path = os.path.join(out_dir, patient_name + '_' + str(i))
             os.mkdir(output_path)
 
-            # Move the slices into a specific folder so that you will save memory in your desk
+           
             for i, file in enumerate(glob(patient + '/*')):
                 if i == Number_slices + 1:
                     break
@@ -56,12 +40,7 @@ def create_groups(in_dir, out_dir, Number_slices):
 
 
 def dcm2nifti(in_dir, out_dir):
-    '''
-    This function will be used to convert dicoms into nifti files after creating the groups with 
-    the number of slices that you want.
-    `in_dir`: the path to the folder where you have all the patients (folder of all the groups).
-    `out_dir`: the path to the output, which means where you want to save the converted nifties.
-    '''
+
 
     for folder in tqdm(glob(in_dir + '/*')):
         patient_name = os.path.basename(os.path.normpath(folder))
@@ -69,11 +48,7 @@ def dcm2nifti(in_dir, out_dir):
 
 
 def find_empy(in_dir):
-    '''
-    This function will help you to find the empty volumes that you may not need for your training
-    so instead of opening all the files and search for the empty ones, them use this function to make it quick.
-    '''
-    
+
     list_patients = []
     for patient in glob(os.path.join(in_dir, '*')):
         img = nib.load(patient)
@@ -87,11 +62,6 @@ def find_empy(in_dir):
 
 def prepare(in_dir, pixdim=(1.5, 1.5, 1.0), a_min=-200, a_max=200, spatial_size=[128,128,64], cache=False):
 
-    """
-    This function is for preprocessing, it contains only the basic transforms, but you can add more operations that you 
-    find in the Monai documentation.
-    https://monai.io/docs.html
-    """
 
     set_determinism(seed=0)
 
